@@ -136,6 +136,11 @@ async function init(args) {
   fs.mkdirSync('build/debug-c/')
   fs.mkdirSync('build/release-c/')
 
+  const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+  packageJson.scripts["asbuild:debug"] = "as-c-bind build debug"
+  packageJson.scripts["asbuild:release"] = "as-c-bind build release"
+  fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2))
+
   console.log()
   console.log('as-c-bind init complete')
   console.log('You can now add headers with \'npx as-c-bind add <path to header file>\'')

@@ -109,7 +109,7 @@ async function init(args) {
   // Change directory to the new project
   process.chdir(args[0])
 
-  const npmInstallProcess = spawnSync('npm', ['i', '/home/heath/headerconv2/as-c-bind'], { stdio: 'inherit' })
+  const npmInstallProcess = spawnSync('npm', ['i', 'https://github.com/Heath123/as-c-bind'], { stdio: 'inherit' })
   if (npmInstallProcess.status !== 0) {
     console.error('npm install failed')
     process.exit(1)

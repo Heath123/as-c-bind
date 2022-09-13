@@ -40,11 +40,11 @@ for header in packageJson["asCBind"]["headers"]:
   tu = index.parse(headerPath, options=clang.cindex.TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD)
 
   asFile = """
-  import { cPtr, convertToPtr, freeConverted } from 'as-c-bind/assembly'
+  import { cPtr, convertToAddr, freeConverted, createCPtr } from 'as-c-bind/assembly'
   """.strip() + "\n"
 
   # tsFile = """
-  # import { cPtr, convertToPtr, freeConverted } from 'as-c-bind/assembly'
+  # import { cPtr, convertToAddr, freeConverted } from 'as-c-bind/assembly'
   # type cPtrLike = cPtr | null | string | number | number[]
   # """.strip() + "\n"
 
@@ -105,21 +105,21 @@ for header in packageJson["asCBind"]["headers"]:
       has_args = False
       for i, arg in enumerate(child.get_arguments()):
         has_args = True
-        as_declaration += f"{ensureArgName(arg.spelling, i)}: {typeToTS(arg.type)}, "
+        as_declaration += f"{ensureArgName(arg.spelling, i)}: {typeToTS(arg.type, visibleWrapper=False)}, "
         # ts_declaration += f"{ensureArgName(arg.spelling, i)}: {typeToTS(arg.type, tsFile=True)}, "
 
       if has_args:
         as_declaration = as_declaration[:-2]
         # ts_declaration = ts_declaration[:-2]
 
-      as_declaration += f"): {typeToTS(child.type.get_result())}\n"
+      as_declaration += f"): {typeToTS(child.type.get_result(), visibleWrapper=False)}\n"
       # ts_declaration += f"): {typeToTS(child.type.get_result(), tsFile=True)}\n"
 
       # Now add a wrapper using generics (no unions in AS) to take multiple types
       as_declaration += f"export function {child.spelling}"
       as_declaration += "<"
       for i, arg in enumerate(child.get_arguments()):
-        if arg.type.kind == clang.cindex.TypeKind.POINTER:
+        if arg.type.get_canonical().kind == clang.cindex.TypeKind.POINTER:
           as_declaration += f"{numToLetters(i + 1)}, "
       if as_declaration.endswith(", "):
         as_declaration = as_declaration[:-2]
@@ -132,7 +132,7 @@ for header in packageJson["asCBind"]["headers"]:
       for i, arg in enumerate(child.get_arguments()):
         has_args = True
         as_declaration += f"{ensureArgName(arg.spelling, i)}: "
-        if arg.type.kind == clang.cindex.TypeKind.POINTER:
+        if arg.type.get_canonical().kind == clang.cindex.TypeKind.POINTER:
           as_declaration += numToLetters(i + 1)
         else:
           as_declaration += typeToTS(arg.type)
@@ -145,16 +145,16 @@ for header in packageJson["asCBind"]["headers"]:
       as_declaration += f": {typeToTS(child.type.get_result())} {{\n"
 
       for i, arg in enumerate(child.get_arguments()):
-        if arg.type.kind == clang.cindex.TypeKind.POINTER:
+        if arg.type.get_canonical().kind == clang.cindex.TypeKind.POINTER:
           argname = ensureArgName(arg.spelling, i)
-          as_declaration += f"  let {argname}_conv = convertToPtr({argname})\n"
+          as_declaration += f"  let {argname}_conv = convertToAddr({argname})\n"
       
       # Call the _internal function
       as_declaration += "  " if child.type.get_result().kind == clang.cindex.TypeKind.VOID else "  let _func_call_result = "
       as_declaration += f"{child.spelling}_internal("
       for i, arg in enumerate(child.get_arguments()):
         as_declaration += ensureArgName(arg.spelling, i)
-        if arg.type.kind == clang.cindex.TypeKind.POINTER:
+        if arg.type.get_canonical().kind == clang.cindex.TypeKind.POINTER:
           as_declaration += "_conv"
         as_declaration += ", "
       if has_args:
@@ -163,12 +163,16 @@ for header in packageJson["asCBind"]["headers"]:
 
       # Free the converted arguments if necessary
       for i, arg in enumerate(child.get_arguments()):
-        if arg.type.kind == clang.cindex.TypeKind.POINTER:
+        if arg.type.get_canonical().kind == clang.cindex.TypeKind.POINTER:
           argname = ensureArgName(arg.spelling, i)
           as_declaration += f"  freeConverted({argname}, {argname}_conv)\n"
 
-      if child.type.get_result().kind != clang.cindex.TypeKind.VOID:
-        as_declaration += "  return _func_call_result\n"
+      if child.type.get_canonical().get_result().kind != clang.cindex.TypeKind.VOID:
+        # If it's a pointer, convert it to a cPtr object
+        if child.type.get_result().get_canonical().kind == clang.cindex.TypeKind.POINTER:
+          as_declaration += f"  return createCPtr(_func_call_result)\n"
+        else:
+          as_declaration += "  return _func_call_result\n"
       as_declaration += "}\n"
 
       asFile += as_declaration

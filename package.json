@@ -4,7 +4,7 @@
   "description": "Allows you to use C libraries from AssemblyScript",
   "main": "src/index.js",
   "bin": {
-    "as-c-header": "src/index.js"
+    "as-c-bind": "src/index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

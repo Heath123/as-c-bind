@@ -1,9 +1,7 @@
 from utils import *
 
 def genGlueStart():
-  return """#include "../main.c"
-
-#include <stdio.h>
+  return """#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -11,9 +9,15 @@ def genGlueStart():
 
 extern wasmMemory *e_memory;
 
-#define convPtr(offset) (void*) i64_load(e_memory, offset)
-extern U32 (*e_createCVoidPtr)(U64);
-#define convPtrBack(ptr) e_createCVoidPtr((U64) ptr)
+// We now have it unboxed on the C side and box/unbox it in AS code, so these are no-ops
+// TODO: Avoid generating them entirely
+
+// #define convPtr(offset) (void*) i64_load(e_memory, offset)
+// extern U32 (*e_createCVoidPtr)(U64);
+// #define convPtrBack(ptr) e_createCVoidPtr((U64) ptr)
+
+#define convPtr(offset) (void*) offset
+#define convPtrBack(ptr) (U64) ptr
 
 extern void init();
 
@@ -111,7 +115,7 @@ U32 f_index_asCBindMalloc_impl(U32 size) {
 }
 U32 (*f_index_asCBindMalloc)(U32) = &f_index_asCBindMalloc_impl;
 
-void f_index_asCBindFree_impl(U32 ptr) {
+void f_index_asCBindFree_impl(U64 ptr) {
   free(convPtr(ptr));
 }
 void (*f_index_asCBindFree)(U32) = &f_index_asCBindFree_impl;

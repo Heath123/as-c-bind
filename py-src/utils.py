@@ -41,7 +41,7 @@ def isArray(type):
   type = type.get_canonical()
   return type.kind in [clang.cindex.TypeKind.CONSTANTARRAY, clang.cindex.TypeKind.INCOMPLETEARRAY, clang.cindex.TypeKind.VARIABLEARRAY, clang.cindex.TypeKind.DEPENDENTSIZEDARRAY]
 
-def typeToTS(type, fallback=None, acceptNonPrimitives=True, tsFile = False):
+def typeToTS(type, fallback=None, acceptNonPrimitives=True, tsFile = False, visibleWrapper = True):
   type = type.get_canonical()
   size = type.get_size()
   # print(type.kind)
@@ -53,7 +53,7 @@ def typeToTS(type, fallback=None, acceptNonPrimitives=True, tsFile = False):
     if tsFile:
       return f"cPtrLike"
     else:
-      return "cPtr | null"
+      return "cPtr | null" if visibleWrapper else "u64"
   elif isInt(type):
     return f"i{size * 8}" if isSigned(type) else f"u{size * 8}"
   elif isFloat(type):
@@ -77,7 +77,11 @@ def typeToWrapper(type):
     # Pointer turns into a cPtr<T>, which is passed to C code as a pointer to WebAssembly memory
     # WebAssembly pointers are represented as U32
     # (if I use the value type trick it's still a U32, but it's not a pointer to WebAssembly memory)
-    return "U32"
+    # return "U32"
+
+    # We now represent this as an unboxed U64 and wrap it in the AssemblyScript glue code
+    # TODO: Adjust for different pointer sizes (e.g. 32-bit)
+    return "U64"
   elif isInt(type):
     # WebAssembly doesn't have signed/unsigned or ints smaller than 32 bits so it's always U32 or U64
     return "U32" if size * 8 <= 32 else "U64"

@@ -61,3 +61,12 @@ Function vsscanf has repeated declaration - skipping
 Hello, World!
 ~/helloworld $
 ```
+
+## Limitations
+
+The following things are not yet supported and need to be added:
+
+- Typed pointers (currently, all pointers are interchangable which is not safe)
+- Structs/unions (all functions with structs as arguments or results are skipped, unless they are pointers)
+- Enums (though simple numeric `#define` constants are supported)
+- Probably many more things I haven't thought of

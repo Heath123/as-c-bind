@@ -1,7 +1,7 @@
 # as-c-bind
 Use C headers from AssemblyScript
 
-Note that this is currently in an early state and will have a lot of missing features, bugs and performance issues. It is also only tested on Linux.
+Note that this is currently in an early state and will have a lot of missing features, bugs and performance issues. It is also only tested on Linux. The code is also a mess and mixes JS and Python (as there aren't any good libclang bindings for JS that I can find).
 
 ## Dependencies
 
@@ -74,6 +74,8 @@ The following things are not yet supported and need to be added:
 
 - Typed pointers (currently, all pointers are interchangable which is not safe)
 - Structs/unions (all functions with structs as arguments or results are skipped, unless they are pointers)
+- Accessing extern variables
+- Calling AssemblyScript functions from C code (currently you can only call C from AssemblyScript)
 - Enums (though simple numeric `#define` constants are supported)
 - I haven't tested booleans yet
 - Proper conversion of strings to UTF-8 rather than assuming everything is ASCII (shouldn't be too hard)

@@ -77,6 +77,7 @@ The following things are not yet supported and need to be added:
 - Accessing extern variables
 - Calling AssemblyScript functions from C code (currently you can only call C from AssemblyScript)
 - Enums (though simple numeric `#define` constants are supported)
+- Varargs
 - I haven't tested booleans yet
 - Proper conversion of strings to UTF-8 rather than assuming everything is ASCII (shouldn't be too hard)
 - Currently assumes the CPU is little-endian and 64-bit (32 bit may work but not tested)

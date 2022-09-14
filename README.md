@@ -64,9 +64,9 @@ Hello, World!
 
 ## Tips
 
-Set and get memory with the `[set/get]Memory[8/16/32/64]()` functions imported from `as-c-bind`. TO get the address of a pointer, access its `addr` property.
+Set and get memory with the `[set/get]Memory[8/16/32/64]()` functions that can be imported from `as-c-bind`. To get the address of a pointer, access its `addr` property.
 
-You can pass strings, integers (memeory addresses) or arrays of integers in place of pointers. Remember that AssemblyScript is garbage collected, so passing an array of integers will cause problems if the C code expects it to stay around after the call. Also string# are freed immediately after the call is done.
+You can pass strings, integers (memory addresses) or arrays of integers in place of pointers. Remember that AssemblyScript is garbage collected, so passing an array of integers will cause problems if the C code expects it to stay around after the call. Also strings are freed immediately after the call is done.
 
 ## Limitations
 
@@ -77,4 +77,5 @@ The following things are not yet supported and need to be added:
 - Enums (though simple numeric `#define` constants are supported)
 - I haven't tested booleans yet
 - Proper conversion of strings to UTF-8 rather than assuming everything is ASCII (shouldn't be too hard)
+- Currently assumes the CPU is little-endian and 64-bit (32 bit may work but not tested)
 - Probably many more things I haven't thought of

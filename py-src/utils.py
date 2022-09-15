@@ -61,6 +61,10 @@ def typeToTS(type, fallback=None, acceptNonPrimitives=True, tsFile = False, visi
     if size > 8:
       return "f64"
     return f"f{size * 8}"
+  # Interpret enums as ints
+  elif type.kind == clang.cindex.TypeKind.ENUM:
+    # TODO: Test this
+    return f"i{size * 8}"
   else:
     if fallback is not None:
       return fallback

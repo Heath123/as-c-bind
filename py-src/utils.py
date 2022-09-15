@@ -96,6 +96,9 @@ def typeToWrapper(type):
   elif type.kind == clang.cindex.TypeKind.LONGDOUBLE:
     # TODO?
     return "F64"
+  # Interpret enums as ints
+  elif type.kind == clang.cindex.TypeKind.ENUM:
+    return "U32" if size * 8 <= 32 else "U64"
   else:
     raise Exception(f"Unsupported type: {type.spelling}")
 

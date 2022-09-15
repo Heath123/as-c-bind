@@ -124,11 +124,10 @@ void (*f_index_asCBindFree)(U32) = &f_index_asCBindFree_impl;
 
 """
 
-def genGlue(tu):
+def genGlue(tu, declared):
   # functionAssignments = "f_env_abort = f_env_abort_impl;\n  f_index_setMemory8 = f_index_setMemory8_impl;\n"
   cGlue = ""
 
-  declared = []
   for child in tu.cursor.get_children():
     if child.kind == clang.cindex.CursorKind.FUNCTION_DECL:
       if child.spelling in declared:

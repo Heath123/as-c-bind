@@ -97,11 +97,13 @@ if not "asCBind" in packageJson:
 if not "headers" in packageJson["asCBind"]:
   packageJson["asCBind"]["headers"] = []
 
-# Loop over the header files
-for header in packageJson["asCBind"]["headers"]:
-  glue += f"#include \"{header}\"\n"
+# # Loop over the header files
+# for header in packageJson["asCBind"]["headers"]:
+#   glue += f"#include \"{header}\"\n"
 
 glue += genGlueStart()
+
+declared = []
 
 # Loop over the directories in path/headers with os.listdir
 if os.path.exists(os.path.join(cwd, path, "headers")):
@@ -114,10 +116,12 @@ if os.path.exists(os.path.join(cwd, path, "headers")):
     # Read meta.json from the directory
     with open(os.path.join(cwd, path, "headers", directory, "meta.json")) as f:
       meta = json.load(f)
-    
+
+    glue += f"#include \"{meta['origPath']}\"\n"
+
     index = clang.cindex.Index.create()
     tu = index.parse(meta["origPath"])
-    glue += genGlue(tu)
+    glue += genGlue(tu, declared)
 
 glue += genGlueEnd()
 
